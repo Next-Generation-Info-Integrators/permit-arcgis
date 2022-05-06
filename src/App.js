@@ -1,24 +1,24 @@
 import logo from './logo.svg';
 import './App.css';
 
+import EsriMap from './pages/Map';
+import { setDefaultOptions } from 'esri-loader';
+import FeatureLayer from './components/Layers/FeatureLayer';
+import Header from './components/Header';
+import BasemapDynamicLayer from './components/Layers/BasemapDynamicLayer';
+
+setDefaultOptions({ css: true });
+
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+	<Header />
+	<EsriMap zoom={11} show3D={false} center={[144.7937,13.4443]}>
+		
+	<BasemapDynamicLayer />
+		<FeatureLayer  key={"fd"}  />
+	</EsriMap>
+	</>
   );
 }
 

@@ -36,3 +36,9 @@
     transform: rotate(360deg);
   }
 }
+.esri-view-width-xlarge .esri-popup__main-container,
+.esri-view-width-large .esri-popup__main-container,
+.esri-view-width-medium .esri-popup__main-container
+{
+    width: 650px !important;
+}

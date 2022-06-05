@@ -1,5 +1,5 @@
 import { Button, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import React, { createRef, useEffect, useMemo, useState } from 'react';
+import React, { createRef, useEffect, useMemo, useRef, useState } from 'react';
 import SketchViewModel from '@arcgis/core/widgets/Sketch/SketchViewModel';
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
 import Slider from '@arcgis/core/widgets/Slider';
@@ -12,11 +12,12 @@ import {Chart} from 'chart.js';
 let highlightHandle = null;
 const IdentifyParcel = ({view})=>{
 
-	const [activeTool,setActiveTool] = useState('');
+	const [activeTool,setActiveTool] = useState('point');
 	const [sketchGeometry,setSketchGeometry] = useState(null);
 	const [sketchViewModel,setSketchViewModel] = useState(null);
 	const [bufferSize,setBufferSize] = useState(0);
 	const [parcelLayer, setParcelLayer] = useState(null);
+	const bufferNumNode = useRef(null);
 	const bufferLayer = useMemo(()=>{
 		return new GraphicsLayer()
 	},[]);
@@ -344,11 +345,17 @@ const IdentifyParcel = ({view})=>{
           view: view,
           defaultCreateOptions: { hasZ: false }
         }))
-		
-		  
   
-		  const bufferNumSlider = new Slider({
-			container: "bufferNum",
+		  
+		  // createYearChart();
+		  // createMaterialChart();
+	
+	},[view])
+	useEffect(()=>{
+		if(!bufferNumNode || !view)
+			return;
+		const bufferNumSlider = new Slider({
+			container: bufferNumNode.current.target,
 			min: 0,
 			max: 500,
 			steps: 1,
@@ -367,14 +374,11 @@ const IdentifyParcel = ({view})=>{
 			bufferVariablesChanged
 		  );
 		  function bufferVariablesChanged(event) {
-			setBufferSize(event.value);
-			runQuery();
+			 setBufferSize(event.value);
+			// runQuery();
 		  }
-		  // createYearChart();
-		  // createMaterialChart();
-	
-	},[view])
-	return (<div>
+	},[bufferNumNode,])
+	return (<div style={{padding:'20px'}}>
 	<div id="queryDiv" className="esri-widget">
       <b>Query by geometry</b><br />
       <br />Draw a geometry to query by:
@@ -403,7 +407,7 @@ const IdentifyParcel = ({view})=>{
       <br />
       <div className="tooltip">
         <label for="bufferNum">Set a geometry buffer size:</label>
-        <div id="bufferNum"></div>
+        <div id="bufferNum" ref={bufferNumNode}></div>
       </div>
     </div>
 

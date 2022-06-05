@@ -1,3 +1,4 @@
+@import "@arcgis/core/assets/esri/themes/light/main.css";
 
 html, body, .esri-map {
 	padding: 0;

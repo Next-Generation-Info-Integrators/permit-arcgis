@@ -215,15 +215,17 @@ const SuitabilityAnalysis = ({view}) => {
 				url: "http://3d.guamgis.com/arcgis/rest/services/FinalAHP/GPServer/AHP%20Final%20Script",
 				outSpatialReference: SpatialReference.WebMercator
 			  });
-			  
+			  setJobStatus('Submitting Job');
 			  geoprocessor.submitJob({input: JSON.stringify(dict),output:''}).then(function(jobInfo) {
 				let jobid = jobInfo.jobId;
 			  
 				let options = {
 				  interval: 1500,
 				  statusCallback: function(j) {
+					  console.log(j.jobStatus);
 					  setJobStatus(j.jobStatus);
-				  }
+				  },
+				
 				};
 			  
 				geoprocessor.waitForJobCompletion(jobid, options).then(function() {

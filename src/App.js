@@ -1,14 +1,13 @@
-import logo from './logo.svg';
 import './App.css';
 
 import EsriMap from './pages/Map';
-import { setDefaultOptions } from 'esri-loader';
 import FeatureLayer from './components/Layers/FeatureLayer';
 import Header from './components/Header';
 import BasemapDynamicLayer from './components/Layers/BasemapDynamicLayer';
+import esriConfig from "@arcgis/core/config.js";
 
-setDefaultOptions({ css: true });
 
+esriConfig.assetsPath = "./assets";
 function App() {
   return (
     <>

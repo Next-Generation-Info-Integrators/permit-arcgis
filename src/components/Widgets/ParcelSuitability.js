@@ -1,8 +1,10 @@
 import styled from '@emotion/styled';
 import { Button, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Chart } from "react-google-charts";
+import Query from '@arcgis/core/rest/support/Query'
+import {executeQueryJSON} from '@arcgis/core/rest/query';
 
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -12,19 +14,126 @@ const Item = styled(Paper)(({ theme }) => ({
 	textAlign: 'center',
 	color: theme.palette.text.secondary,
   }));
-  
-const ParcelSuitability = ({score, onCustomSuitability}) => {
+const GuamAverage = {
+	"Fire_Stations":	4,
+	"Flood_Final":	4,
+	"Hospitals":	1,
+	"Main_Road_Points":	4,
+	"Parks":	1,
+	"Slope_sample":	5,
+	"Schools":	1
+}
+const ParcelSuitability = ({score, onCustomSuitability, criteria, type, parcelName}) => {
 
+	const [suitabilityScore, setSuitabilityScore] = React.useState([]);
+	const [matrix, setMatrix] = React.useState([]);
+	const [normolizeMetrix, setNormolizeMetrix] = React.useState([]);
+	const [matrixScore, setMatrixScore] = React.useState({});
+	const [criteriaWeight, setCriteriaWeight] = React.useState({});
+	const [totalScore, setTotalScore] = React.useState(0);
+	useEffect(()=>{
+		const tbl = [];
+		criteria.forEach((c,index)=>{
+		criteria.forEach((cf,childIndex)=>{
+			if(childIndex>=index){
+				if(index === childIndex) {
+					tbl.push({label:c.label +' VS '+ cf.label,value:c.value +' VS '+ cf.value,pair: [index,childIndex],priority:1});
+				} else {
+					tbl.push({label:c.label +' VS '+ cf.label,value:c.value +' VS '+ cf.value,pair: [index,childIndex],priority:cf.priority});
+				}
+			}
+			
+		})
+	});
+	setMatrix(tbl);
+	},[criteria])
+	useEffect(()=>{
+		if(matrix.length>0) {
+			const objScore = {};
+			criteria.forEach((c, i)=>{
+				let total = 0;
+				criteria.forEach((d,j)=>{
+					total += parseFloat(calculatePairwise(i,j));
+				});
+				objScore[i]= .125;
+			})
+		setMatrixScore(objScore);
+		}
+		
+	},[matrix])
+
+	useEffect(()=>{
+		if(Object.keys(matrixScore).length>0){
+			let normolize = [];
+			let sAvgScore = {};
+			normolize = matrix.map((m,i) => {
+				m.priority = m.priority / matrixScore[m.pair[0]];
+				return m;
+			})
+
+			for(let i=0; i< criteria.length; i++) {
+				let total = 0;
+				for(let j=i; j< criteria.length; j++) {
+					const m =  normolize.find(m => m.pair[0] === i && m.pair[1] === j);
+					total += parseFloat(m.priority);
+					
+				}
+				sAvgScore[criteria[i].key] = .125;
+			}
+			setCriteriaWeight(sAvgScore)
+		}
+	  
+	},[matrixScore])
+	useEffect(()=>{
+	},[normolizeMetrix])
+	useEffect(() => {
+		let queryUrl = "http://3d.guamgis.com/arcgis/rest/services/permit/MapServer/11";
+
+		// create the Query object
+		let queryObject = new Query();
+		
+		queryObject.where = "Parcel_Sea='"+parcelName+"'";
+		queryObject.outFields =[ 'Fire_Stations', 'Flood_Final', 'Hospitals','Main_Road_Points','Parks', 'Slope_sample', 'Schools' ];
+		
+		// call the executeQueryJSON() method
+		executeQueryJSON(queryUrl, queryObject).then(function(results){
+			if(results.features !== undefined) {
+				setSuitabilityScore(results.features.map(function(feature){
+					return feature.attributes
+				}));
+			}
+			
+		});
+	},[])
+	useEffect(()=>{
+		if(suitabilityScore.length>0 && Object.keys(criteriaWeight).length>0)  {
+		let total = 0;
+		
+		Object.keys(suitabilityScore[0]).forEach((key)=>{
+			if(suitabilityScore[0][key]!=null) {
+				total+= parseInt(suitabilityScore[0][key]+ parseFloat(criteriaWeight[key]));
+			}
+		});
+		setTotalScore(total/Object.keys(suitabilityScore[0]).length);
+	}
+	},[suitabilityScore,criteriaWeight])
+	const calculatePairwise = (i,j) => {
+		if(matrix.find(p=>p.pair[0] === i && p.pair[1] === j)) {
+			return (matrix.find(p=>p.pair[0] === i && p.pair[1] === j).priority).toFixed(2);
+		} else if(matrix.find(p=>p.pair[0] === j && p.pair[1] === i)) {
+			return (1/matrix.find(p=>p.pair[0] === j && p.pair[1] === i).priority).toFixed(2);
+		}
+	}
 	return <Box>
 		<Grid container spacing={2} >
 			<Grid item xs={4}>
-			<Typography component={'h1'} color="red" style={{'textAlign': 'center'}} gap={0}>Residential - {score}</Typography>
+			<Typography component={'h1'} color="red" style={{'textAlign': 'center'}} gap={0}>{type} - {score}</Typography>
 			
 				<Chart 
 				chartType="PieChart"
 				data={[['Label', 'Value'],
-				['',5 - score],
-				['Suitability', score],
+				['',5 - totalScore],
+				['Suitability', totalScore],
 			]
 				}
 				legendToggle ={false}
@@ -51,7 +160,7 @@ Importance each parameter is given
 
 Click here to do a 
 
-<Button color="error" onClick={()=>{ onCustomSuitability()}}>custom suitability analysis</Button>
+<Button color="error" onClick={()=>{onCustomSuitability()}}>custom suitability analysis</Button>
 
 				</Typography>
 				
@@ -68,68 +177,40 @@ Click here to do a
 								Relative Weight
 							</TableCell>
 							<TableCell component="th">
-								Score
+								Score (1-5)
 							</TableCell>
 							<TableCell component="th">
 								Meaning
 							</TableCell>
 							<TableCell component="th">
-								Guam Average
+								Guam Average (1-5)
 							</TableCell>
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						<TableRow>
+						{suitabilityScore.length > 0  && criteria.map(row => {
+							const imgUrl = require(`../../assets/icons/${row.key}.png`);
+							const parcelScore = Math.round(suitabilityScore[0][row.key]);
+						return <TableRow>
 							<TableCell align="left" component={'th'}>
-								Flood Risk
+								<img  src={imgUrl} alt={row.label} 
+								style={{width:'20px',height:'20px', marginRight: '10px'}}/>
+								{row.value}
 							</TableCell>
 							<TableCell align="right">
-								0.238
+								{criteriaWeight[row.key]*100}%
 							</TableCell>
 							<TableCell align="right">
-								4/5
+								{isNaN(parcelScore) ? 'N/A' : parcelScore}
 							</TableCell>
 							<TableCell align="right">
-								Flood Zone X
+							{isNaN(parcelScore) ? 'N/A' : row.meaning[parcelScore] }
 							</TableCell>
 							<TableCell align="right">
-								Flood Rish
+								{GuamAverage[row.key]}
 							</TableCell>
-						</TableRow>
-						<TableRow>
-							<TableCell align="left" component={'th'}>
-								Distance from Main Road
-							</TableCell>
-							<TableCell align="right">
-								0.238
-							</TableCell>
-							<TableCell align="right">
-								3/5
-							</TableCell>
-							<TableCell align="right">
-								0.25 to 0.05 miles
-							</TableCell>
-							<TableCell align="right">
-								0.6 miles
-							</TableCell>
-						</TableRow>
-						<TableRow>
-							<TableCell align="left" component={'th'}>
-								Distance from Fire Station
-							</TableCell>
-							<TableCell align="right">
-								0.342
-							</TableCell>
-							<TableCell align="right">
-								4/5
-							</TableCell>
-							<TableCell align="right">
-								1 to 2 miles
-							</TableCell>
-							<TableCell align="right">
-								2.65 miles
-							</TableCell>
-						</TableRow>
+					</TableRow>	
+})}
 					</TableBody>
 				</Table>
 				</TableContainer>

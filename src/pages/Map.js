@@ -277,8 +277,9 @@ function EsriMap({ children, zoom, center, show3D, visibleBaseMapGallary = false
 		
 		const node = document.createElement('div');
 		ReactDOM.render(
-			<ParcelPopup data={feature.graphic} onCustomSuitability={(value)=>{setIsOpenAHP(true)}} view={activeView} />
-			, node);
+			<>
+			<ParcelPopup data={feature.graphic} openAHPAnalysis={()=>{setIsOpenAHP(true)}} view={activeView} />
+			</>, node);
 		return node;
 	}
 	const [isClosedIdentify, setIsClosedIdentify] = useState(false);
@@ -311,12 +312,6 @@ function EsriMap({ children, zoom, center, show3D, visibleBaseMapGallary = false
 					}} style={{ zIndex: 10, position: 'absolute', bottom: 20, left: 30, transform: 'translateX(-50%)', backgroundColor: '#fff' }}
 					onChange={(event, newValue) => { setActiveControl(newValue); }}
 				>
-					{/* <ToggleButton value="bookmarks" aria-label="bookmarks">
-						<BookmarksIcon />
-					</ToggleButton>
-					<ToggleButton value="search" aria-label="search">
-						<ContentPasteSearchIcon />
-					</ToggleButton> */}
 					<DraggableDialog selected={'landusezone' === activeControl}
 						onOpen={() => { setActiveControl('landusezone') }} onClose={() => { handleIdentifyDialogClose() }}
 						title="Land Use Analysis" icon={<LandscapeRoundedIcon />}>

@@ -1,10 +1,15 @@
-import { useContext, useEffect, useMemo } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
+import ReactDOM  from "react-dom";
 import esriMapContext from "../../esriMapcontext";
 import MapImageLayer from "@arcgis/core/layers/MapImageLayer";
+import ParcelPopup from "../Widgets/ParcelPopup";
+import { SwipeableDrawer } from "@mui/material";
+import SuitabilityAnalysis from "../SuitabilityAnalysis";
 
 const BasemapDynamicLayer = ({}) => {
 
   const {activeView } = useContext(esriMapContext);
+  const [isOpenAHP, setIsOpenAHP] = useState(false);
 
   useEffect(()=>{
 	  if(!activeView )
@@ -19,11 +24,49 @@ const BasemapDynamicLayer = ({}) => {
 		}
 		const layer = new MapImageLayer({
 			url: "http://3d.guamgis.com/arcgis/rest/services/permit/MapServer",
-			title: "Layers"
+			title: "Layers",
+			sublayers: [
+				{
+					id: 9,
+					visible: true,
+					title: 'Municipals',
+					// popupTemplate: {
+					// 	title: "Municpal - {Municplty}",
+					// 	outFields: "Municplty,OBJECTID"
+					// }
+				},
+				{
+					id: 8,
+					visible: true,
+					title: 'Parcels',
+					popupTemplate: {
+						title: "Parcel - {Parcel_Search_Field}",
+						content: setContentInfo,
+						outFields: "*"
+					}
+				},
+			]
 			});
 	  activeView.map.add(layer);
 	
   },[activeView])
-  return null;
+  const setContentInfo = (feature) => {
+		
+	const node = document.createElement('div');
+	ReactDOM.render(
+		<ParcelPopup data={feature.graphic} openAHPAnalysis={()=>{setIsOpenAHP(true)}} view={activeView} />
+		, node);
+	return node;
+}
+  return <SwipeableDrawer PaperProps={{
+	sx: { width: "60%" },
+}}
+	anchor={'right'}
+	open={isOpenAHP}
+	onClose={() => { setIsOpenAHP(false) }}
+	onOpen={() => { setIsOpenAHP(true) }}
+>
+	<SuitabilityAnalysis view={activeView} />
+</SwipeableDrawer>;
 };
 export default BasemapDynamicLayer;

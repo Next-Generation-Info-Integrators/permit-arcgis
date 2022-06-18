@@ -45,6 +45,18 @@ const BasemapDynamicLayer = ({}) => {
 						outFields: "*"
 					}
 				},
+				{
+					id: 6,
+					visible: false,
+					title: 'Buildings',
+					// maxScale: 100
+				},
+				{
+					id: 0,
+					visible: false,
+					// maxScale: 100,
+					title: 'Streets',
+				},
 			]
 			});
 	  activeView.map.add(layer);

@@ -7,6 +7,7 @@ import { Button, Checkbox, Container, FormControl, FormControlLabel, InputLabel,
 import { Box } from '@mui/system';
 import Geoprocessor from '@arcgis/core/tasks/Geoprocessor';
 import SpatialReference from '@arcgis/core/geometry/SpatialReference';
+import {suitabilityGoals } from '../config/constants';
 
 
 if (typeof Highcharts === "object") {
@@ -21,46 +22,7 @@ const SuitabilityAnalysis = ({view}) => {
 	const [matrix, setMatrix] = React.useState([]);
 	const [loading, setLoading] = React.useState(false);
 	const [jobStatus, setJobStatus] = React.useState('');
-	const goals = React.useMemo(()=>([{label: 'What are your goals?' , options:[
-			{label:'Residential areas', value:'Residential',criteria_factors: [
-				{label:'Residential areas should be safe from frequent floods, important for years to coe', value:'Flood Risk',key:'Flood_Final' ,priority: 1},
-				{label:'How accessible are main roads from the property, so that emergency services reach faster', value:'Distance from Main Road',key:'Main_Road_Points' ,priority: 1},
-				{label: 'Fire safety', value:'Distance from fire station',key:'Fire_Stations' ,priority: 1},
-				{label: 'Emergency/Primary medical services', value:'Distance from medicos / hospital',key:'Hospitals' ,priority: 1},
-				{label: 'Places for recreation, relaxation, exercise within reach', value:'Distance from neighborhood park',key:'Parks' ,priority: 1},
-				{label: 'Elementary schools within walking distances from homes', value:'Distance from elementary school',key:'Schools' ,priority: 1},
-				{label: 'Presence of a neighborhood grocery store, solves fresh food access', value:'Distance of grocery store/supermarket (food security/fresh food access)',key:'Shopping_Centers' ,priority: 1},
-				{label: 'Flat areas, more safer for home building than those on hills, more prone to widfires, landslides', value:'Slope',key:'Slope_sample' ,priority: 1},
-			]},
-			{label:'Commercial areas', value:'Commercial',criteria_factors: [
-				{label:'Commercial areas located close to residential areas get a market. Reduces driving distances and keeps areas lively for most hours a day', value:'Distance from Residential areas',key: 'Residential' ,priority: 1},
-				{label:'Important if most things for daily consumption are imported', value:'Distance from Terminal/Ports',key:'Airports_Marinas' ,priority: 1},
-				{label: 'Emergency/Primary medical services', value:'Distance from main roads',key:'Main_Road_Points' ,priority: 1},
-			]},
-			{label:'Industrial areas', value:'Industrial',criteria_factors: [
-				{label:'Industries require large parcels of flat lands', value:'Slope' ,priority: 2,key: 'Slope_sample'},
-				{label:'Industrial areas affect quality of air, noise etc. Far is better', value:'Distance from Residential Areas' ,priority: 1,key: 'Residential'},
-				{label: 'Better accessibility a plus for loading/unloading etc', value:'Distance from main roads' ,priority: .50,key: 'Main_Road_Points'},
-				{label: 'Industries near the ports are better, easy access to export services ', value:'Distance from ports' ,priority: 3.03,key:'Airports_Marinas'},
-			]},
-			// {label:'Hotal/Resort', value:'Hotal',criteria_factors: [
-			// 	{label:'Hotels drive a lot of vehicular traffic, noise etc. which should be distanced form the residential environment', value:'Distance from Residential areas' ,priority: 3,key: 'Residential'},
-			// 	{label:'Distance to airport is a factor for Hotels, not so much for Resorts', value:'Distance from Airport/Sea port' ,priority: 2,key:'Airports_Marinas'},
-			// 	{label: 'To facillitate easy movement for cab traffic, service vehicles, waste collection etc.', value:'Distance from main roads' ,priority: 1,key: 'Main_Road_Points'},
-			// 	{label: 'Tourism has footprints on the ecology of sensitive areas. Factor to be considered so that mitigations can be made accordingly', value:'Distance from ecologically sensitive areas' ,priority: .50},
-			// ]},
-			// {label:'Public Facility/School Zone', value:'Facility',criteria_factors: [
-			// 	{label:'Hotels drive a lot of vehicular traffic, noise etc. which should be distanced form the residential environment', value:'Distance from Residential areas' ,priority: 3},
-			// 	{label:'Distance to airport is a factor for Hotels, not so much for Resorts', value:'Number of households served within half mile radius' ,priority: 2},
-			// 	{label: 'To facillitate easy movement for cab traffic, service vehicles, waste collection etc.', value:'Slope' ,priority: 1},
-			// 	{label: 'Tourism has footprints on the ecology of sensitive areas. Factor to be considered so that mitigations can be made accordingly', value:'Elevation of the site wrt surroundings' ,priority: .50},
-			// 	{label: '',value:'Flood lines',priority:0},
-			// 	{label: '',value:'Distance from Highways',priority:0},
-			// 	{label: '',value:'Number of adult use shops around (vape, movies, bars)',priority:0},
-			// 	{label: '',value:'',priority:0},
-			// ]},
-		]
-	}]),[]);
+	const goals = React.useMemo(()=>(suitabilityGoals),[]);
 	const options = {
 		chart: {
 			type:'bar',

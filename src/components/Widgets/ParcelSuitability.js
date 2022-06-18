@@ -5,7 +5,7 @@ import React, { useEffect } from 'react';
 import { Chart } from "react-google-charts";
 import Query from '@arcgis/core/rest/support/Query'
 import {executeQueryJSON} from '@arcgis/core/rest/query';
-
+import { GuamAverage } from '../../config/constants';
 
 const Item = styled(Paper)(({ theme }) => ({
 	backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -14,20 +14,11 @@ const Item = styled(Paper)(({ theme }) => ({
 	textAlign: 'center',
 	color: theme.palette.text.secondary,
   }));
-const GuamAverage = {
-	"Fire_Stations":	4,
-	"Flood_Final":	4,
-	"Hospitals":	1,
-	"Main_Road_Points":	4,
-	"Parks":	1,
-	"Slope_sample":	5,
-	"Schools":	1
-}
-const ParcelSuitability = ({score, onCustomSuitability, criteria, type, parcelName}) => {
+const ParcelSuitability = ({onCustomSuitability, criteria, type, parcelName}) => {
 
 	const [suitabilityScore, setSuitabilityScore] = React.useState([]);
 	const [matrix, setMatrix] = React.useState([]);
-	const [normolizeMetrix, setNormolizeMetrix] = React.useState([]);
+	// const [normolizeMetrix, setNormolizeMetrix] = React.useState([]);
 	const [matrixScore, setMatrixScore] = React.useState({});
 	const [criteriaWeight, setCriteriaWeight] = React.useState({});
 	const [totalScore, setTotalScore] = React.useState(0);
@@ -35,13 +26,13 @@ const ParcelSuitability = ({score, onCustomSuitability, criteria, type, parcelNa
 		const tbl = [];
 		criteria.forEach((c,index)=>{
 		criteria.forEach((cf,childIndex)=>{
-			if(childIndex>=index){
+			//if(childIndex>=index){
 				if(index === childIndex) {
 					tbl.push({label:c.label +' VS '+ cf.label,value:c.value +' VS '+ cf.value,pair: [index,childIndex],priority:1});
 				} else {
 					tbl.push({label:c.label +' VS '+ cf.label,value:c.value +' VS '+ cf.value,pair: [index,childIndex],priority:cf.priority});
 				}
-			}
+			// }
 			
 		})
 	});
@@ -55,7 +46,7 @@ const ParcelSuitability = ({score, onCustomSuitability, criteria, type, parcelNa
 				criteria.forEach((d,j)=>{
 					total += parseFloat(calculatePairwise(i,j));
 				});
-				objScore[i]= .125;
+				objScore[i]= total;
 			})
 		setMatrixScore(objScore);
 		}
@@ -73,19 +64,18 @@ const ParcelSuitability = ({score, onCustomSuitability, criteria, type, parcelNa
 
 			for(let i=0; i< criteria.length; i++) {
 				let total = 0;
-				for(let j=i; j< criteria.length; j++) {
+				for(let j=0; j< criteria.length; j++) {
 					const m =  normolize.find(m => m.pair[0] === i && m.pair[1] === j);
 					total += parseFloat(m.priority);
 					
 				}
-				sAvgScore[criteria[i].key] = .125;
+				sAvgScore[criteria[i].key] = total/criteria.length;
 			}
 			setCriteriaWeight(sAvgScore)
 		}
 	  
 	},[matrixScore])
-	useEffect(()=>{
-	},[normolizeMetrix])
+
 	useEffect(() => {
 		let queryUrl = "http://3d.guamgis.com/arcgis/rest/services/permit/MapServer/11";
 
@@ -93,7 +83,7 @@ const ParcelSuitability = ({score, onCustomSuitability, criteria, type, parcelNa
 		let queryObject = new Query();
 		
 		queryObject.where = "Parcel_Sea='"+parcelName+"'";
-		queryObject.outFields =[ 'Fire_Stations', 'Flood_Final', 'Hospitals','Main_Road_Points','Parks', 'Slope_sample', 'Schools' ];
+		queryObject.outFields =[ 'Fire_Stations', 'Flood_Final', 'Hospitals','Main_Road_Points','Parks', 'Slope_sample', 'Schools','Distance_Residential','Distance_transport','HH_halfhour','Distance_Commercial','Distance_Ports' ];
 		
 		// call the executeQueryJSON() method
 		executeQueryJSON(queryUrl, queryObject).then(function(results){
@@ -108,13 +98,13 @@ const ParcelSuitability = ({score, onCustomSuitability, criteria, type, parcelNa
 	useEffect(()=>{
 		if(suitabilityScore.length>0 && Object.keys(criteriaWeight).length>0)  {
 		let total = 0;
-		
+		debugger;
 		Object.keys(suitabilityScore[0]).forEach((key)=>{
-			if(suitabilityScore[0][key]!=null) {
-				total+= parseInt(suitabilityScore[0][key]+ parseFloat(criteriaWeight[key]));
+			if(suitabilityScore[0][key]!=null && criteriaWeight[key] != null) {
+				total+= parseFloat(suitabilityScore[0][key] * parseFloat(criteriaWeight[key]));
 			}
 		});
-		setTotalScore(total/Object.keys(suitabilityScore[0]).length);
+		setTotalScore( parseFloat(total.toFixed(2)));
 	}
 	},[suitabilityScore,criteriaWeight])
 	const calculatePairwise = (i,j) => {
@@ -127,7 +117,7 @@ const ParcelSuitability = ({score, onCustomSuitability, criteria, type, parcelNa
 	return <Box>
 		<Grid container spacing={2} >
 			<Grid item xs={4}>
-			<Typography component={'h1'} color="red" style={{'textAlign': 'center'}} gap={0}>{type} - {score}</Typography>
+			<Typography component={'h1'} color="red" style={{'textAlign': 'center'}} gap={0}>{type} - {totalScore}</Typography>
 			
 				<Chart 
 				chartType="PieChart"
@@ -152,15 +142,15 @@ const ParcelSuitability = ({score, onCustomSuitability, criteria, type, parcelNa
 				}}
 				/>
 				<Typography component={'p'}>
-				On a scale of 1 to 10, where 1 is least suitable and 10 is the most suitable for the given land-use
+				On a scale of 1 to 5, where 1 is least suitable and 5 is the most suitable for the given land-use
 <br/>
 The score is a result of how this land parcel performs
 On the parameters mentioned on the right, and the relative
 Importance each parameter is given 
 
-Click here to do a 
+{/* Click here to do a 
 
-<Button color="error" onClick={()=>{onCustomSuitability()}}>custom suitability analysis</Button>
+<Button color="error" onClick={()=>{onCustomSuitability()}}>custom suitability analysis</Button> */}
 
 				</Typography>
 				
@@ -198,7 +188,7 @@ Click here to do a
 								{row.value}
 							</TableCell>
 							<TableCell align="right">
-								{criteriaWeight[row.key]*100}%
+								{(criteriaWeight[row.key]*100).toFixed(2)}%
 							</TableCell>
 							<TableCell align="right">
 								{isNaN(parcelScore) ? 'N/A' : parcelScore}

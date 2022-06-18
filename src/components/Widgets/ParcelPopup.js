@@ -5,7 +5,7 @@ import PropTypes  from 'prop-types';
 import ParcelSuitability from './ParcelSuitability';
 import * as identify from "@arcgis/core/rest/identify";
 import IdentifyParameters from "@arcgis/core/rest/support/IdentifyParameters";
-
+import { suitabilityGoals } from '../../config/constants';
 
 
 function TabPanel(props) {
@@ -95,9 +95,9 @@ const ParcelPopup = ({data, view,openAHPAnalysis,residentialCriteria, commercial
 	<Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
 		<Tabs value={tabValue} onChange={handleTabChange} aria-label="esri popup">
 			<Tab key="hpi" label="Parcel Info" {...a11yProps(0)} />
-			<Tab key="hps" label="Suitability" {...a11yProps(1)} />
-			{/* <Tab key="hps" label="Commercial Suitability" {...a11yProps(2)} />
-			<Tab key="hps" label="Industrial Suitability" {...a11yProps(3)} /> */}
+			<Tab key="hpr" label="Residential Suitability" {...a11yProps(1)} />
+			<Tab key="hpc" label="Commercial Suitability" {...a11yProps(2)} />
+			<Tab key="hpid" label="Industrial Suitability" {...a11yProps(3)} />
 		</Tabs>
 	</Box>
 	<TabPanel key={"tabparcel"} value={tabValue} index={0}>
@@ -143,76 +143,15 @@ const ParcelPopup = ({data, view,openAHPAnalysis,residentialCriteria, commercial
 			</Table>
 		</TableContainer>
 	</TabPanel>
-	<TabPanel key="tab-analysis" value={tabValue} index={1}>
-		<ParcelSuitability type="Residential" onCustomSuitability={()=>{openAHPAnalysis()}} parcelName={Parcel_Search_Field} score = {parcelScore} criteria={[
-				{label:'Residential areas should be safe from frequent floods, important for years to coe', value:'Flood Risk',key:'Flood_Final' ,priority: 1,meaning:{
-					'1':'AE',
-					'2':'A',
-					'3':'AH',
-					'4':'X',
-					'5':'0.2 PERCENT FLOOD ZONE ',
-				}},
-				{label:'How accessible are main roads from the property, so that emergency services reach faster', value:'Distance from Main Road',key:'Main_Road_Points' ,priority: 1,meaning:{
-					'1':'> 1 mile',
-					'2':'0.75 - 1 mile',
-					'3':'0.5-0.75 mile',
-					'4':'0.25-0.5 mile',
-					'5':'<0.25 mile',
-				}},
-				{label: 'Fire safety', value:'Distance from Fire Station',key:'Fire_Stations' ,priority: 1,
-				meaning:{
-					'1':'> 4 miles',
-					'2':'3- 4 miles',
-					'3':'2- 3 miles',
-					'4':'1 - 2 miles',
-					'5':'< 1 mile',
-				}},
-				{label: 'Emergency/Primary Medical Services', value:'Distance from Medicos / Hospitals',key:'Hospitals' ,priority: 1,
-				meaning:{
-					'1':'> 4 miles',
-					'2':'3- 4 miles',
-					'3':'2- 3 miles',
-					'4':'1 - 2 miles',
-					'5':'< 1 mile',
-				}},
-				{label: 'Places for recreation, relaxation, exercise within reach', value:'Distance from Neighborhood Park',key:'Parks' ,priority: 1,meaning:{
-					'1':'> 1 mile',
-					'2':'0.75 - 1 mile',
-					'3':'0.5-0.75 mile',
-					'4':'0.25-0.5 mile',
-					'5':'<0.25 mile',
-				}},
-				{label: 'Elementary schools within walking distances from homes', value:'Distance from Elementary School',key:'Schools' ,priority: 1,meaning:{
-					'1':'> 1 mile',
-					'2':'0.75 - 1 mile',
-					'3':'0.5-0.75 mile',
-					'4':'0.25-0.5 mile',
-					'5':'<0.25 mile',
-				}},
-				{label: 'Flat areas, more safer for home building than those on hills, more prone to widfires, landslides', value:'Slope',key:'Slope_sample' ,priority: 1,meaning:{
-					'1':'> 25 degrees',
-					'2':'20 - 25 degrees',
-					'3':'15 -20 degrees',
-					'4':'10 - 15 degrees',
-					'5':'<10 degrees',
-				}},
-			]}  />
+	<TabPanel key="tab-res-analysis" value={tabValue} index={1}>
+		<ParcelSuitability key={"rescon"} type="Residential" onCustomSuitability={()=>{openAHPAnalysis()}} parcelName={Parcel_Search_Field} score = {parcelScore} criteria={suitabilityGoals[0].options.find(p=>p.value === 'Residential').criteria_factors}  />
 	</TabPanel>
-	{/* <TabPanel key="tab-analysis" value={tabValue} index={2}>
-		<ParcelSuitability type="Commercial" score = {parcelScore} criteria={[
-				{label:'Commercial areas located close to residential areas get a market. Reduces driving distances and keeps areas lively for most hours a day', value:'Distance from Residential areas',key: 'Residential' ,priority: 1},
-				{label:'Important if most things for daily consumption are imported', value:'Distance from Terminal/Ports',key:'Airports_Marinas' ,priority: 1},
-				{label: 'Emergency/Primary medical services', value:'Distance from main roads',key:'Main_Road_Points' ,priority: 1},
-			]} onCustomSuitability={onCustomSuitability} />
+	<TabPanel key="tab-com-analysis" value={tabValue} index={2}>
+		<ParcelSuitability key="rescom" type="Commercial"  parcelName={Parcel_Search_Field}  score = {parcelScore} criteria={suitabilityGoals[0].options.find(p=>p.value === 'Commercial').criteria_factors} onCustomSuitability={openAHPAnalysis} />
 	</TabPanel>
-	<TabPanel key="tab-analysis" value={tabValue} index={3}>
-		<ParcelSuitability type="Industrial" score = {parcelScore} criteria={[
-				{label:'Industries require large parcels of flat lands', value:'Slope' ,priority: 2,key: 'Slope_sample'},
-				{label:'Industrial areas affect quality of air, noise etc. Far is better', value:'Distance from Residential Areas' ,priority: 1,key: 'Residential'},
-				{label: 'Better accessibility a plus for loading/unloading etc', value:'Distance from main roads' ,priority: .50,key: 'Main_Road_Points'},
-				{label: 'Industries near the ports are better, easy access to export services ', value:'Distance from ports' ,priority: 3.03,key:'Airports_Marinas'},
-			]} onCustomSuitability={onCustomSuitability} />
-	</TabPanel> */}
+	<TabPanel key="tab-ind-analysis" value={tabValue} index={3}>
+		<ParcelSuitability key={"resin"} type="Industrial"  parcelName={Parcel_Search_Field} score = {parcelScore} criteria={suitabilityGoals[0].options.find(p=>p.value === 'Industrial').criteria_factors} onCustomSuitability={openAHPAnalysis} />
+	</TabPanel>
 </Box>)
 }
 

@@ -10,6 +10,7 @@ import Measurement from '@arcgis/core/widgets/Measurement';
 import CoordinateConversion from '@arcgis/core/widgets/CoordinateConversion';
 import Sketch from '@arcgis/core/widgets/Sketch';
 import LayerList from '@arcgis/core/widgets/LayerList';
+import Slider from '@arcgis/core/widgets/Slider';
 import Print from '@arcgis/core/widgets/Print';
 import ExpandButton from '@arcgis/core/widgets/Expand';
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
@@ -99,8 +100,41 @@ function EsriMap({ children, zoom, center, show3D, visibleBaseMapGallary = false
 				const layerList = new LayerList({
 					view: view,
 					selectionEnabled: true,
+					listItemCreatedFunction: function (event) {
+						const item = event.item;
+					  
+						// Adds a slider for updating a group layer's opacity
+						if(item.children.length > 0 ){
+						  const slider = new Slider({
+							min: 0,
+							max: 1,
+							precision: 2,
+							values: [ 1 ],
+							visibleElements: {
+							  labels: true,
+							  rangeLabels: true
+							}
+						  });
+					  
+						  item.panel = {
+							content: slider,
+							className: "esri-icon-sliders-horizontal",
+							title: "Change layer opacity"
+						  };
+					  
+						  slider.on("thumb-drag", (event) => {
+							const { value } = event;
+							if(item.layer.layer) {
+								item.layer.layer.opacity = value;
+							} else {
+								item.layer.opacity = value;
+							}
+							
+						  });
+						}
 
-				})
+				}
+			})
 
 				const measurement = new Measurement({
 					view: view,
@@ -165,10 +199,34 @@ function EsriMap({ children, zoom, center, show3D, visibleBaseMapGallary = false
 				});
 				//view.when(()=>{
 				view.ui.add([new Search({
-					view, includeDefaultSources: false, sources: [{
+					view, includeDefaultSources: false, sources: [
+						{
+
+							layer: new FeatureLayer({
+								url: "http://insight.eblpguam.com/arcgis/rest/services/permit/MapServer/10",
+								outFields: ["*"],
+								// popupTemplate: new PopupTemplate({
+	
+								// 	title: "Parcel Information",
+								// 	//content: setContentInfo,
+									
+								// }),
+							}),
+							searchFields: ["DESC_", "CATEGORY"],
+							displayField: "DESC_",
+							exactMatch: false,
+							outFields: ["*"],
+							name: "Landmarks",
+							placeholder: "Search Landmarks",
+							maxResults: 6,
+							maxSuggestions: 6,
+							suggestionsEnabled: true,
+							minSuggestCharacters: 0
+						},
+						{
 
 						layer: new FeatureLayer({
-							url: "http://3d.guamgis.com/arcgis/rest/services/permit/MapServer/8",
+							url: "http://insight.eblpguam.com/arcgis/rest/services/permit/MapServer/8",
 							outFields: ["*"],
 							popupTemplate: new PopupTemplate({
 

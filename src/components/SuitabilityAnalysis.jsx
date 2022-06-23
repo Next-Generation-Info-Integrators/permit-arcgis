@@ -172,7 +172,7 @@ const SuitabilityAnalysis = ({view}) => {
 			let geoprocessor = new Geoprocessor({
 				id:'suitability',
 				title:'Suitability',
-				url: "http://3d.guamgis.com/arcgis/rest/services/FinalAHP/GPServer/AHP%20Final%20Script",
+				url: "http://insight.eblpguam.com/arcgis/rest/services/FinalAHP/GPServer/AHP%20Final%20Script",
 				outSpatialReference: SpatialReference.WebMercator
 			  });
 			  setJobStatus('Submitting Job');

@@ -111,7 +111,7 @@ function getSymbol(color) {
 const CustomFeatureLayer = ({}) => {
 
   const { mapView, activeView, sceneView } = useContext(esriMapContext);
-  const [url,setUrl] = useState("http://3d.guamgis.com/arcgis/rest/services/building3d/MapServer");
+  const [url,setUrl] = useState("http://insight.eblpguam.com/arcgis/rest/services/building3d/MapServer");
   const loadFeatureLayer= () => {
 	const featureLayer = new FeatureLayer({title:'Buildings 3D',
 	url:url+"/0",//https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/building_footprints_height/FeatureServer

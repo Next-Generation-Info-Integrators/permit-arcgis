@@ -77,7 +77,7 @@ const ParcelSuitability = ({onCustomSuitability, criteria, type, parcelName}) =>
 	},[matrixScore])
 
 	useEffect(() => {
-		let queryUrl = "http://3d.guamgis.com/arcgis/rest/services/permit/MapServer/11";
+		let queryUrl = "http://insight.eblpguam.com/arcgis/rest/services/permit/MapServer/12";
 
 		// create the Query object
 		let queryObject = new Query();

@@ -37,7 +37,7 @@ class IdentifyComponent extends React.Component {
 		this.resultDiv  = React.createRef();
 		this.bufferLayer = new GraphicsLayer({title:'Buffer Layer',listMode:'hide'});
 		this.pointLayer = new GraphicsLayer({title:'Point Layer',listMode:'hide'});
-		this.featureLayer = new FeatureLayer({url: 'http://3d.guamgis.com/arcgis/rest/services/permit/MapServer/8'});
+		this.featureLayer = new FeatureLayer({url: 'http://insight.eblpguam.com/arcgis/rest/services/permit/MapServer/8'});
 		this.state = {
 			activeTool: 'clear',
 			bufferValue: 500,

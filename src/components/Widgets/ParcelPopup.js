@@ -56,7 +56,7 @@ const ParcelPopup = ({data, view,openAHPAnalysis,residentialCriteria, commercial
 		  }).find(function(layer){
 			return layer.title === "FinalAHP";
 		  });
-		  let url = 'http://3d.guamgis.com/arcgis/rest/services/FinalAHP/MapServer';
+		  let url = 'http://insight.eblpguam.com/arcgis/rest/services/FinalAHP/MapServer';
 		  if(AHPLayer != null) {
 			url = AHPLayer.url;
 		  } 

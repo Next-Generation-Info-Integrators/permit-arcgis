@@ -23,17 +23,18 @@ const BasemapDynamicLayer = ({}) => {
 			return;
 		}
 		const layer = new MapImageLayer({
-			url: "http://3d.guamgis.com/arcgis/rest/services/permit/MapServer",
+			url: "http://insight.eblpguam.com/arcgis/rest/services/permit/MapServer",
 			title: "Layers",
 			sublayers: [
+				{
+					id: 10,
+					visible: true,
+					title: 'Landmarks',
+				},
 				{
 					id: 9,
 					visible: true,
 					title: 'Municipals',
-					// popupTemplate: {
-					// 	title: "Municpal - {Municplty}",
-					// 	outFields: "Municplty,OBJECTID"
-					// }
 				},
 				{
 					id: 8,

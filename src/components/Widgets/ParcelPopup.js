@@ -1,12 +1,14 @@
-import { Paper, Tab, Table, TableBody, TableCell, TableContainer, TableRow, Tabs, Typography } from '@mui/material';
+import { Paper, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes  from 'prop-types';
 import ParcelSuitability from './ParcelSuitability';
 import * as identify from "@arcgis/core/rest/identify";
 import IdentifyParameters from "@arcgis/core/rest/support/IdentifyParameters";
 import { suitabilityGoals } from '../../config/constants';
-
+import FontAwesomeicon from '../FontAwesomeIcon';
+import LandRecordReport from '../profile-report-popup/LandRecordReport';
+import {useAuth} from 'oidc-react';
 
 function TabPanel(props) {
 	const { children, value, index, ...other } = props;
@@ -38,11 +40,10 @@ function a11yProps(index) {
 		'aria-controls': `simple-tabpanel-${index}`,
 	};
 }
-const ParcelPopup = ({data, view,openAHPAnalysis,residentialCriteria, commercialCriteria, IndestrialCriteria})=>{
-
+const ParcelPopup = ({data,authToken, view,openAHPAnalysis,residentialCriteria, commercialCriteria, IndestrialCriteria})=>{
 	const [tabValue, setTabValue] = useState(0);
 	const [parcelScore, setParcelScore] = useState(0);
-
+	const [landData, setLandData]  = useState({});
 	const params = new IdentifyParameters();
           params.tolerance = 3;
           // params.layerIds = [0, 1, 2, 3, 4];
@@ -91,13 +92,36 @@ const ParcelPopup = ({data, view,openAHPAnalysis,residentialCriteria, commercial
 		Parcel_Search_Field,
 		PlanNAME,
 		RecID } } = data;
+		console.log(data);
+	useEffect(()=>{
+		if(OBJECTID >0) {
+			fetch(`https://gis.eblpguam.com/api/search/geocodebycoordinate?lng=${data.geometry.centroid.longitude}&lat=${data.geometry.centroid.latitude}`,{
+				headers:{
+					'Content-Type': 'application/json',
+					'Authorization': 'Bearer '+ authToken
+				}
+				}).then(res=>res.json()).then(res=>{
+					fetch(`https://gis.eblpguam.com/api/search/geocodebyparcelid?parcel_id=${res.parcelId}`,{
+				headers:{
+					'Content-Type': 'application/json',
+					'Authorization': 'Bearer '+ authToken
+				}
+				}).then(res=>res.json()).then(res=>{
+					setLandData(res);
+				})
+				})
+		}
+		
+	},[OBJECTID])
 	return (<Box sx={{ width: '100%' }}>
 	<Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
 		<Tabs value={tabValue} onChange={handleTabChange} aria-label="esri popup">
-			<Tab key="hpi" label="Parcel Info" {...a11yProps(0)} />
-			<Tab key="hpr" label="Residential Suitability" {...a11yProps(1)} />
-			<Tab key="hpc" label="Commercial Suitability" {...a11yProps(2)} />
-			<Tab key="hpid" label="Industrial Suitability" {...a11yProps(3)} />
+			<Tab key="hpi" iconPosition='start' icon={<FontAwesomeicon icon={'image-landscape'} />} label="Parcel Info" {...a11yProps(0)} />
+			<Tab key="landfeature" iconPosition='start' icon={<FontAwesomeicon icon={'image-landscape'} />} label="Features" {...a11yProps(1)} />
+			<Tab key="record" iconPosition='start' icon={<FontAwesomeicon icon={'list-dropdown'} />} label="Record" {...a11yProps(2)} />
+			<Tab key="hpr" iconPosition='start' icon={<FontAwesomeicon icon={'house-building'} />} label="Residential" {...a11yProps(3)} />
+			<Tab key="hpc" iconPosition='start' icon={<FontAwesomeicon icon={'city'} />} label="Commercial" {...a11yProps(4)} />
+			<Tab key="hpid" iconPosition='start' icon={<FontAwesomeicon icon={'industry-windows'} />} label="Industrial" {...a11yProps(5)} />
 		</Tabs>
 	</Box>
 	<TabPanel key={"tabparcel"} value={tabValue} index={0}>
@@ -143,13 +167,58 @@ const ParcelPopup = ({data, view,openAHPAnalysis,residentialCriteria, commercial
 			</Table>
 		</TableContainer>
 	</TabPanel>
-	<TabPanel key="tab-res-analysis" value={tabValue} index={1}>
+	<TabPanel key={"tabfeature"} value={tabValue} index={1}>
+		<TableContainer component={Paper}>
+			<Table size="small" sx={{ minWidth: 650 }}>
+
+				<TableBody>
+					{(landData.landParcel != null && landData.landParcel.features != null && landData.landParcel.features.length > 0) &&
+					<TableRow>
+						<TableCell colSpan={4}>
+							
+         <Table >
+                             <TableHead>
+                                 <TableRow>
+                                     <TableCell style={{width:'30px'}}>S.No.</TableCell>
+                                     <TableCell>Feature</TableCell>
+                                 </TableRow>    
+                             </TableHead>
+                             <TableBody>
+                             {(landData.landParcel.features!=null) &&
+                                 landData.landParcel.features.map((element,i) => {
+                                     const img = require(`../../assets/images/${element.icon}`)
+                                     return <TableRow>
+                                     <TableCell>
+                                         {i+1}
+                                     </TableCell>
+                                     <TableCell>
+                                         <img alt={element.featureTypeName} title={element.featureTypeName} style={{marginRight:'5px'}} src={img} height="24" width="24" />
+                                         {element.feature}
+                                     </TableCell>
+                                 </TableRow>
+                                 })
+                                 }
+                             </TableBody>
+                         </Table>
+                   
+						</TableCell>
+					</TableRow>
+
+}
+				</TableBody>
+			</Table>
+		</TableContainer>
+	</TabPanel>
+	<TabPanel key="tab-res-analysis" value={tabValue} index={2}>
+		<LandRecordReport key={"landrecord"} data={landData.record}  />
+	</TabPanel>
+	<TabPanel key="tab-res-analysis" value={tabValue} index={3}>
 		<ParcelSuitability key={"rescon"} type="Residential" onCustomSuitability={()=>{openAHPAnalysis()}} parcelName={Parcel_Search_Field} score = {parcelScore} criteria={suitabilityGoals[0].options.find(p=>p.value === 'Residential').criteria_factors}  />
 	</TabPanel>
-	<TabPanel key="tab-com-analysis" value={tabValue} index={2}>
+	<TabPanel key="tab-com-analysis" value={tabValue} index={4}>
 		<ParcelSuitability key="rescom" type="Commercial"  parcelName={Parcel_Search_Field}  score = {parcelScore} criteria={suitabilityGoals[0].options.find(p=>p.value === 'Commercial').criteria_factors} onCustomSuitability={openAHPAnalysis} />
 	</TabPanel>
-	<TabPanel key="tab-ind-analysis" value={tabValue} index={3}>
+	<TabPanel key="tab-ind-analysis" value={tabValue} index={5}>
 		<ParcelSuitability key={"resin"} type="Industrial"  parcelName={Parcel_Search_Field} score = {parcelScore} criteria={suitabilityGoals[0].options.find(p=>p.value === 'Industrial').criteria_factors} onCustomSuitability={openAHPAnalysis} />
 	</TabPanel>
 </Box>)

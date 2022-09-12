@@ -34,7 +34,6 @@ class IdentifyComponent extends React.Component {
 	constructor(props)
 	{
 		super(props);
-		this.resultDiv  = React.createRef();
 		this.bufferLayer = new GraphicsLayer({title:'Buffer Layer',listMode:'hide'});
 		this.pointLayer = new GraphicsLayer({title:'Point Layer',listMode:'hide'});
 		this.featureLayer = new FeatureLayer({url: 'http://insight.eblpguam.com/arcgis/rest/services/permit/MapServer/8'});
@@ -52,11 +51,12 @@ class IdentifyComponent extends React.Component {
 	componentDidMount() {
 		const curobj = this;
 		curobj.props.view.when((view) => {
+			 
+		    curobj.props.view.popup.autoOpenEnabled = false;
 			if(curobj.state.layerLoaded === false){
 				curobj.setState({layerLoaded: true},()=>{
 					curobj.view = view;
 					curobj.addLayer();
-					curobj.view.ui.add([curobj.resultDiv.current], 'top-right');
 		})
 	}
 		
@@ -72,15 +72,17 @@ class IdentifyComponent extends React.Component {
 		}
 		if(this.props.closed !== prevProps.closed && this.props.closed === true){
 			this.clearGraphics();
-			this.view.ui.remove(this.resultDiv.current);
 			this.view.map.removeMany([this.bufferLayer, this.pointLayer]);
 			this.setState({data:[]});
 		}
 	}
 	componentWillUnmount() {
-		this.view.ui.remove(this.resultDiv.current);
-		this.view.map.removeMany([this.bufferLayer, this.pointLayer]);
-		this.setState({data:[]});
+		if(this.view){
+			this.view.map.removeMany([this.bufferLayer, this.pointLayer]);
+			this.setState({data:[]});
+			this.view.popup.autoOpenEnabled = true;
+		}
+		
 
 	}
 	
@@ -116,11 +118,7 @@ class IdentifyComponent extends React.Component {
 			newData.push([feature.LandUseZone, feature.count]);
 		})
 		this.setState({data: newData});
-		if(newData.length > 1){
-			this.view.ui.add([this.resultDiv.current], "top-right");
-		} else {
-			this.view.ui.remove(this.resultDiv.current);
-		}
+		
 	}
  executeIdentify =(event) => {
 		if(!event || !event.mapPoint)
@@ -213,9 +211,13 @@ class IdentifyComponent extends React.Component {
 		const {activeTool, bufferValue, queryResults, data} = this.state;
 		return (
 		<>
-		<Box sx={{ width: 250 }} style={{backgroundColor:'#fff'}}>
+		<Box sx={{ width: 600 }} style={{backgroundColor:'#fff'}}>
 
-	<ToggleButtonGroup
+	
+      
+      <Grid container spacing={2} alignItems="center">
+		<Grid item>
+		<ToggleButtonGroup
 		orientation="horizontal" 
 		size="small"
 		color="primary"
@@ -223,33 +225,31 @@ class IdentifyComponent extends React.Component {
 		exclusive
 		onChange={(event, newValue) => { this.setState({activeTool: newValue}); }}
 	  >
-		{/* <ToggleButton value="polygon"  aria-label="polygon">
-		  <span className="esri-widget--button esri-interactive esri-icon-measure-line" size="small"></span>
-		</ToggleButton> */}
 		
 		<ToggleButton value="point"  aria-label="point">
 			<RadioButtonUncheckedRoundedIcon />
-		</ToggleButton>
-		<ToggleButton value="clear"  aria-label="clear">
-			<DeleteForeverRoundedIcon/>
-		</ToggleButton>
+				</ToggleButton>
+				<ToggleButton value="clear"  aria-label="clear">
+					<DeleteForeverRoundedIcon/>
+				</ToggleButton>
 	  </ToggleButtonGroup>
-	  <hr/>
-      <Typography id="input-slider" gutterBottom>
+		</Grid>
+		<Grid style={{marginLeft:'40px'}} item>
+		<Typography id="input-slider">
         Buffer
       </Typography>
-      <Grid container spacing={2} alignItems="center">
-        <Grid item>
-          <RadioButtonCheckedIcon />
-        </Grid>
-        <Grid item xs>
-          <Slider max={5000}
+		</Grid>
+        <Grid item xs={'auto'}>
+		
+          <Slider style={{width:'200px'}}
             value={typeof bufferValue === 'number' ? bufferValue : 0}
             onChange={this.handleSliderChange}
             aria-labelledby="input-slider"
           />
         </Grid>
+		
         <Grid item>
+			
           <Input
             value={bufferValue}
             size="small"
@@ -264,11 +264,8 @@ class IdentifyComponent extends React.Component {
           />
         </Grid>
       </Grid>
-    </Box>
-	  <div id="resultDiv" ref={this.resultDiv} class="esri-widget" >
       {queryResults.features && queryResults.features.length > 0 &&
-
-	  <Card variant='elevation' sx={{minWidth:'500px',height:'400px'}}>
+	  <Card variant='elevation' >
 		  <CardHeader title="Landuse Analysis" subheader={`No Of Parcel - ${queryResults.features && queryResults.features.map(d=>d.count).reduce((partialSum, a) => partialSum + a, 0)}`} />
 		  <CardMedia >
 			  
@@ -276,13 +273,12 @@ class IdentifyComponent extends React.Component {
   chartType="PieChart"
   data={data}
   width="100%"
-  height="250px"
+  height="450px"
   legendToggle ={true}
   options={{
 	legend: {position:'bottom'},
-		title: "Land use Zone",
-		is3D: false,
-		pieHole: 0.5,
+		is3D: true,
+		pieHole: 0.2,
 		sliceVisibilityThreshold: 0.01,
 	  
   }}
@@ -291,7 +287,8 @@ class IdentifyComponent extends React.Component {
 		
 	  </Card>
 		}
-    </div>
+    </Box>
+	  
 	  </>
 	  )
 	}

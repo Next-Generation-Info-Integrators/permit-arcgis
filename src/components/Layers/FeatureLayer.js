@@ -114,6 +114,7 @@ const CustomFeatureLayer = ({}) => {
   const [url,setUrl] = useState("http://insight.eblpguam.com/arcgis/rest/services/building3d/MapServer");
   const loadFeatureLayer= () => {
 	const featureLayer = new FeatureLayer({title:'Buildings 3D',
+	minScale: 	36111.909643,
 	url:url+"/0",//https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/building_footprints_height/FeatureServer
 	renderer: renderer,
 	elevationInfo: {

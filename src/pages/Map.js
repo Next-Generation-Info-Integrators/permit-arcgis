@@ -28,12 +28,13 @@ import IdentifyComponent from "../components/Widgets/Identifycomponent";
 import DraggableDialog from "../components/Widgets/DraggableWidget";
 import LandscapeRoundedIcon from '@mui/icons-material/LandscapeRounded';
 import ParcelPopup from "../components/Widgets/ParcelPopup";
-
+import { useAuth } from "oidc-react";
 
 
 // hooks allow us to create a map component as a function
-function EsriMap({ children, zoom, center, show3D, visibleBaseMapGallary = false }) {
+function EsriMap({ children, zoom, center, show3D, visibleBaseMapGallary = false, onViewChange }) {
 	// create a ref to element to be used as the map's container
+	const auth = useAuth();
 	const mapEl = useRef(null);
 	const popupEl = useRef(null);
 	const [isOpenAHP, setIsOpenAHP] = useState(false);
@@ -47,17 +48,29 @@ function EsriMap({ children, zoom, center, show3D, visibleBaseMapGallary = false
 	function createView(is3D) {
 		let view;
 		if (!is3D) {
-			view = new MapView({ zoom, center,popup:{
-				dockEnabled: true,
-				dockOptions:{
-					buttonEnabled: false,
-					breakpoint:false,
-				}
-			} });
+			view = new MapView({ zoom, center,
+			// 	popup:{
+			// 	dockEnabled: true,
+			// 	alignment: 'auto',
+			// 	dockOptions:{
+			// 		buttonEnabled: false,
+			// 		breakpoint:true,
+
+			// 	}
+			// }
+		 });
 			
 		} else {
 			view = new SceneView({
 				zoom, center,
+				// popup:{
+				// 	alignment: 'auto',
+				// 	dockEnabled: true,
+				// 	dockOptions:{
+				// 		buttonEnabled: false,
+				// 		breakpoint:true,
+				// 	}
+				// },
 				// camera: {
 				// 	position: [
 				// 		 center[0],center[1], 682.98652
@@ -305,21 +318,23 @@ function EsriMap({ children, zoom, center, show3D, visibleBaseMapGallary = false
 		try {
 			if (!activeView)
 				return;
+			if (onViewChange)
+				onViewChange(activeView);
 			if (activeView.container === null) {
 				activeView.container = mapEl.current;
 				addUIControls(activeView);
 			}
 			if (activeView.type === '3d') {
-				setTimeout(() => {
-					const cam = activeView.camera.clone();
-					// the position is autocast as new Point()
-					console.log(activeView.center);
-					cam.position = [activeView.center.longitude, activeView.center.latitude, 682.98652];
-					cam.heading = 53.86;
-					cam.tilt = 45.45;
-					// go to the new camera
-					activeView.goTo(cam);
-				}, 2000);
+				// setTimeout(() => {
+				// 	const cam = activeView.camera.clone();
+				// 	// the position is autocast as new Point()
+				// 	console.log(activeView.center);
+				// 	cam.position = [activeView.center.longitude, activeView.center.latitude, 682.98652];
+				// 	cam.heading = 53.86;
+				// 	cam.tilt = 45.45;
+				// 	// go to the new camera
+				// 	activeView.goTo(cam);
+				// }, 2000);
 			}
 		} catch (error) {
 			console.log("error in useEffect 232 ", error);
@@ -336,7 +351,7 @@ function EsriMap({ children, zoom, center, show3D, visibleBaseMapGallary = false
 		const node = document.createElement('div');
 		ReactDOM.render(
 			<>
-			<ParcelPopup data={feature.graphic} openAHPAnalysis={()=>{setIsOpenAHP(true)}} view={activeView} />
+			<ParcelPopup data={feature.graphic} authToken={auth.userData.access_token} openAHPAnalysis={()=>{setIsOpenAHP(true)}} view={activeView} />
 			</>, node);
 		return node;
 	}
@@ -354,7 +369,7 @@ function EsriMap({ children, zoom, center, show3D, visibleBaseMapGallary = false
 					value={!is3D ? "3D" : "2D"}
 				/>
 
-				<ToggleButtonGroup
+				{/* <ToggleButtonGroup
 					orientation="vertical"
 					size="small"
 					color="primary"
@@ -375,7 +390,7 @@ function EsriMap({ children, zoom, center, show3D, visibleBaseMapGallary = false
 						title="Land Use Analysis" icon={<LandscapeRoundedIcon />}>
 						<IdentifyComponent view={activeView} closed={isClosedIdentify} />
 					</DraggableDialog>
-				</ToggleButtonGroup>
+				</ToggleButtonGroup> */}
 
 			</div>
 

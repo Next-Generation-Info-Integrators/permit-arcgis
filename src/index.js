@@ -3,9 +3,29 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { AuthProvider } from 'oidc-react';
+
+const oidcConfig = {
+	onSignIn: (user) => {
+	  // Redirect?
+	  console.log(user);
+	  window.location.hash = '';
+	},
+	onSignOut: () => {
+		//window.location.reload();
+	},
+	authority: 'https://auth.eblpguam.com',
+	clientId: 'insightgis',
+	redirectUri: 'https://insight.eblpguam.com',//https://insight.eblpguam.com
+	responseType: 'token id_token',
+  	scope: 'openid profile email api1 roles',
+  };
 ReactDOM.render(
   <React.StrictMode>
+
+<AuthProvider {...oidcConfig}>
 	  <App />
+	</AuthProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

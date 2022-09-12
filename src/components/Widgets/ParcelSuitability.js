@@ -6,6 +6,7 @@ import { Chart } from "react-google-charts";
 import Query from '@arcgis/core/rest/support/Query'
 import {executeQueryJSON} from '@arcgis/core/rest/query';
 import { GuamAverage } from '../../config/constants';
+import FontAwesomeicon from '../FontAwesomeIcon';
 
 const Item = styled(Paper)(({ theme }) => ({
 	backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -134,6 +135,7 @@ const ParcelSuitability = ({onCustomSuitability, criteria, type, parcelName}) =>
 				height: '250px',width:'100%',
 						colors: ['#ccc', '#ff0000'],
 						pieHole: 0.5,
+						is3D: true,
 						'tooltip' : {
 							trigger: 'none'
 						  },
@@ -183,8 +185,7 @@ Importance each parameter is given
 							const parcelScore = Math.round(suitabilityScore[0][row.key]);
 						return <TableRow>
 							<TableCell align="left" component={'th'}>
-								<img  src={imgUrl} alt={row.label} 
-								style={{width:'20px',height:'20px', marginRight: '10px'}}/>
+								<FontAwesomeicon icon={row.icon}  size="xl" />
 								{row.value}
 							</TableCell>
 							<TableCell align="right">

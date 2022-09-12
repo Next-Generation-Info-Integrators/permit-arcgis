@@ -8,7 +8,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Paper from '@mui/material/Paper';
 import Draggable from 'react-draggable';
-import { ToggleButton } from '@mui/material';
+import { ListItemButton, ListItemIcon, ListItemText, ToggleButton } from '@mui/material';
 
 
 
@@ -43,13 +43,17 @@ export default function DraggableDialog({children,handlerId, title,icon, value, 
   }
   return (
     <>
-      <ToggleButton value={value} selected={selected} area-label={value} onClick={handleClickOpen}>
-        {icon}
-      </ToggleButton>
+
+		<ListItemButton onClick={handleClickOpen}>
+                <ListItemIcon>
+                  {icon}
+                </ListItemIcon>
+                <ListItemText primary={title} />
+        </ListItemButton>
       <Dialog  
 	  disableEnforceFocus
-	  style={{ pointerEvents: 'none' }}
-	  PaperProps={{ style: { pointerEvents: 'auto' } }}
+	  style={{ pointerEvents: 'none'}}
+	  PaperProps={{ style: { pointerEvents: 'auto',position:'fixed',top: 35,right: 0 } }}
 	  BackdropProps={{hidden:true}}
         open={open} hideBackdrop={true} disableBackdropClick
         onClose={handleClose}

@@ -281,7 +281,7 @@ class SuitabilityIdentify extends React.Component {
   options={{
 	legend: {position:'bottom'},
 		title: "Land use Zone",
-		is3D: false,
+		is3D: true,
 		pieHole: 0.5,
 		sliceVisibilityThreshold: 0.01,
 	  

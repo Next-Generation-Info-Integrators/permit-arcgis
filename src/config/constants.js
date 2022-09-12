@@ -14,28 +14,28 @@ export const GuamAverage = {
 }
 export const suitabilityGoals =[{label: 'What are your goals?' , options:[
 	{label:'Residential areas', value:'Residential',criteria_factors: [
-		{label:'Residential areas should be safe from frequent floods, important for years to coe', value:'Flood Risk',key:'Flood_Final' ,priority: 1,meaning:{
+		{label:'Residential areas should be safe from frequent floods, important for years to coe', value:'Flood Risk',key:'Flood_Final',icon: 'house-flood-water' ,priority: 1,meaning:{
 			'1':'AE',
 			'2':'A',
 			'3':'AH',
 			'4':'X',
 			'5':'0.2 PERCENT FLOOD ZONE ',
 		}},
-		{label:'How accessible are main roads from the property, so that emergency services reach faster', value:'Distance from Main Road',key:'Main_Road_Points' ,priority: 1,meaning:{
+		{label:'How accessible are main roads from the property, so that emergency services reach faster', value:'Distance from Main Road',key:'Main_Road_Points', icon:'road' ,priority: 1,meaning:{
 			'1':'> 1 mile',
 			'2':'0.75 - 1 mile',
 			'3':'0.5-0.75 mile',
 			'4':'0.25-0.5 mile',
 			'5':'<0.25 mile',
 		}},
-		{label: 'Fire safety', value:'Distance from fire station',key:'Fire_Stations' ,priority: 1,meaning:{
+		{label: 'Fire safety', value:'Distance from fire station',key:'Fire_Stations',icon: 'fire-hydrant' ,priority: 1,meaning:{
 			'1':'> 4 miles',
 			'2':'3- 4 miles',
 			'3':'2- 3 miles',
 			'4':'1 - 2 miles',
 			'5':'< 1 mile',
 		}},
-		{label: 'Emergency/Primary medical services', value:'Distance from medicos / hospital',key:'Hospitals' ,priority: 1,
+		{label: 'Emergency/Primary medical services', value:'Distance from medicos / hospital',key:'Hospitals',icon: 'hospital' ,priority: 1,
 		meaning:{
 			'1':'> 4 miles',
 			'2':'3- 4 miles',
@@ -43,21 +43,21 @@ export const suitabilityGoals =[{label: 'What are your goals?' , options:[
 			'4':'1 - 2 miles',
 			'5':'< 1 mile',
 		}},
-		{label: 'Places for recreation, relaxation, exercise within reach', value:'Distance from neighborhood park',key:'Parks' ,priority: 1,meaning:{
+		{label: 'Places for recreation, relaxation, exercise within reach', value:'Distance from neighborhood park',key:'Parks',icon: 'bench-tree' ,priority: 1,meaning:{
 			'1':'> 1 mile',
 			'2':'0.75 - 1 mile',
 			'3':'0.5-0.75 mile',
 			'4':'0.25-0.5 mile',
 			'5':'<0.25 mile',
 		}},
-		{label: 'Elementary schools within walking distances from homes', value:'Distance from elementary school',key:'Schools' ,priority: 1,meaning:{
+		{label: 'Elementary schools within walking distances from homes', value:'Distance from elementary school',key:'Schools',icon: 'school-circle-check' ,priority: 1,meaning:{
 			'1':'> 1 mile',
 			'2':'0.75 - 1 mile',
 			'3':'0.5-0.75 mile',
 			'4':'0.25-0.5 mile',
 			'5':'<0.25 mile',
 		}},
-		{label: 'Flat areas, more safer for home building than those on hills, more prone to widfires, landslides', value:'Slope',key:'Slope_sample' ,priority: 1,meaning:{
+		{label: 'Flat areas, more safer for home building than those on hills, more prone to widfires, landslides', value:'Slope',key:'Slope_sample', icon: 'bacon' ,priority: 1,meaning:{
 			'1':'> 25 degrees',
 			'2':'20 - 25 degrees',
 			'3':'15 -20 degrees',
@@ -66,28 +66,28 @@ export const suitabilityGoals =[{label: 'What are your goals?' , options:[
 		}},
 	]},
 	{label:'Commercial areas', value:'Commercial',criteria_factors: [
-		{label:'Commercial areas located close to residential areas get a market. Reduces driving distances and keeps areas lively for most hours a day', value:'Distance from Residential areas',key: 'Distance_Residential' ,priority: 1,meaning:{
+		{label:'Commercial areas located close to residential areas get a market. Reduces driving distances and keeps areas lively for most hours a day', value:'Distance from Residential areas',key: 'Distance_Residential',icon: 'house-building' ,priority: 1,meaning:{
 			'1':'> 1 mile',
 			'2':'0.75 - 1 mile',
 			'3':'0.5-0.75 mile',
 			'4':'0.25-0.5 mile',
 			'5':'<0.25 mile',
 		}},
-		{label: 'Distance from Public Transport Stations', value:'Distance from Public Transport Stations',key:'Distance_transport' ,priority: 1,meaning:{
+		{label: 'Distance from Public Transport Stations', value:'Distance from Public Transport Stations',key:'Distance_transport',icon: 'bus-simple' ,priority: 1,meaning:{
 			'1':'> 1 mile',
 			'2':'0.75 - 1 mile',
 			'3':'0.5-0.75 mile',
 			'4':'0.25-0.5 mile',
 			'5':'<0.25 mile',
 		}},
-		{label:'Percentage of HHs within half hour driving distance', value:'Percentage of HHs within half hour driving distance',key:'HH_halfhour' ,priority: 1,meaning:{
+		{label:'Percentage of HHs within half hour driving distance', value:'Percentage of HHs within half hour driving distance',key:'HH_halfhour',icon: 'steering-wheel' ,priority: 1,meaning:{
 			'1':'0th to 20 percentile',
 			'2':'20th to 40 percentile',
 			'3':'40th to 60 percentile',
 			'4':'60th to 80 percentile',
 			'5':'80th to 100 percentile',
 		}},
-		{label: 'Distance from Main Roads', value:'Distance from Main Roads',key:'Main_Road_Points' ,priority: 1,meaning:{
+		{label: 'Distance from Main Roads', value:'Distance from Main Roads',key:'Main_Road_Points',icon: 'location-minus' ,priority: 1,meaning:{
 			'1':'> 1 mile',
 			'2':'0.75 - 1 mile',
 			'3':'0.5-0.75 mile',
@@ -96,21 +96,21 @@ export const suitabilityGoals =[{label: 'What are your goals?' , options:[
 		}},
 	]},
 	{label:'Industrial areas', value:'Industrial',criteria_factors: [
-		{label:'Distance from conservation areas', value:'Distance from conservation areas' ,priority: 1,key: 'Distance_Commercial',meaning:{
+		{label:'Distance from conservation areas', value:'Distance from conservation areas' ,priority: 1,key: 'Distance_Commercial', icon: 'tower-observation',meaning:{
 			'1':'< 1 mile',
 			'2':'1 - 2 miles',
 			'3':'2- 3 miles',
 			'4':'3- 4 miles',
 			'5':'> 4 miles',
 		}},
-		{label:'Distance from Airports/Sea Port', value:'Distance from Airports/Sea Port' ,priority: 1,key: 'Distance_Ports',meaning:{
+		{label:'Distance from Airports/Sea Port', value:'Distance from Airports/Sea Port' ,priority: 1,key: 'Distance_Ports',icon: 'plane-departure' ,meaning:{
 			'1':'> 4 miles',
 			'2':'3- 4 miles',
 			'3':'2- 3 miles',
 			'4':'1 - 2 miles',
 			'5':'< 1 mile',
 		}},
-		{label: 'Distance from Residential areas', value:'Distance from Residential areas' ,priority: 1,key: 'Distance_Residential',meaning:{
+		{label: 'Distance from Residential areas', value:'Distance from Residential areas' ,priority: 1,key: 'Distance_Residential', icon: 'house-building',meaning:{
 			'1':'<0.25 mile',
 			'2':'0.25-0.5 mile',
 			'3':'0.5-0.75 mile',
